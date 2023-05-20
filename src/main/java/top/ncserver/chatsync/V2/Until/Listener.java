@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import top.ncserver.chatsync.Chatsync;
 import top.ncserver.chatsync.Client;
+import top.ncserver.chatsync.V2.Until.hook.HookManager;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -19,9 +21,13 @@ public class Listener implements org.bukkit.event.Listener {
     private static final String channel = "chatimg:img";
     Map<String, Object> msg = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
+
         if (Chatsync.UnconditionalAutoSync) {
+            if (!HookManager.hooks.isEmpty())
+                if (HookManager.check(event.getMessage()))
+                    return;
             msg.clear();
             msg.put("type", "msg");
             msg.put("sender", event.getPlayer().getDisplayName());
